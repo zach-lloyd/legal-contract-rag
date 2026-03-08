@@ -214,3 +214,8 @@ cuad/
 
 # .DS_Store
 .DS_Store
+
+# Virtual Environments
+venv312/
+venv/
+
