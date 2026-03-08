@@ -211,3 +211,6 @@ chroma_data/
 
 # Dataset
 cuad/
+
+# .DS_Store
+.DS_Store
