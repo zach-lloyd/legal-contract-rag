@@ -20,6 +20,7 @@ async function getAnswer(params) {
 }
 
 async function submitPrompt() {
+  document.getElementById("thinking").hidden = false;
   const promptInput = document.querySelector("#prompt-input");
   const userPrompt = promptInput.value;
   const chatHistory = document.getElementById("chat");
@@ -35,4 +36,5 @@ async function submitPrompt() {
   const answerElement = document.createElement("p");
   answerElement.textContent = answer;
   chatHistory.append(answerElement);
+  document.getElementById("thinking").hidden = true;
 }

@@ -4,14 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Homepage</title>
+    <script src="handleChat.js" defer></script>
   </head>
   <body>
-    <div class="chat"></div>
+    <div id="chat"></div>
+    <p hidden id="thinking">Thinking...</p>
     <textarea
       type="text"
       placeholder="Enter your prompt here..."
       id="prompt-input"
     ></textarea>
-    <button type="submit">Submit</button>
+    <button type="submit" onclick="submitPrompt()">Submit</button>
   </body>
 </html>
