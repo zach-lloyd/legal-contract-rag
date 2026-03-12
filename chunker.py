@@ -9,6 +9,7 @@ contracts = []
 
 for contract in cuad["data"]:
     title = contract["title"]
+    # Store the text of the contract in a single string
     full_text = "\n\n".join(
         p["context"] for p in contract["paragraphs"]
     )
@@ -28,6 +29,7 @@ for contract in contracts:
     for chunk in splitter.split_text(contract["text"]):
         chunks.append({"contract_title": contract["title"], "chunk_text": chunk})
 
+# Uncomment this code to print some example chunks
 '''
 for i, chunk in enumerate(chunks[:3]):
     print(f"\nContract: {chunk['contract_title']}")
@@ -35,6 +37,8 @@ for i, chunk in enumerate(chunks[:3]):
     print(chunk["chunk_text"])
 '''
 
+# I used chromadb for vector storage because it offers persistence without 
+# being overkill like a full client-server database would be
 client = chromadb.PersistentClient(path="./chroma_data")
 collection = client.get_or_create_collection(name="legal_contracts")
 
