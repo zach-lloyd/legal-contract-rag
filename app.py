@@ -68,41 +68,52 @@ async def get_answer(user_prompt: Message, session_id: str = None):
     if len(history) >= 20:
         history[:] = history[2:]
 
-    chat_text = ""
+    prompt = ""
+    # If there is a conversation history, rewrite the user's question, taking 
+    # into account the history, to ensure that it can be understood. This is 
+    # essential for handling follow-up questions which might be too vague to 
+    # be understood without the context of the conversation history
+    if len(history) > 0:
+        chat_text = ""
 
-    for message in history:
-        chat_text += message["content"]
-    
-    # Rewrite the user's question, taking into account the conversation history,
-    # to ensure that it can be understood. This is essential for handling follow-up
-    # questions which might be too vague to be understood without the context of the
-    # conversation history
-    rewritten_prompt = ollama.chat(
-        model="qwen3:32b",
-        messages=[
-            {
-                "role": "system",
-                "content": f"Conversation History: {chat_text}"
-            },
-            {
-                "role": "system",
-                "content": "Given this conversation history, rewrite the user's latest "
-                           "question as a fully self-contained query in 256 words or less "
-                           "that could be understood without any prior context."
-            }, 
-            {
-                "role": "system",
-                "content": f"User's Latest Question: {user_prompt.content}"
-            }  
-        ]
-    )
+        for message in history:
+            chat_text += message["content"]
+        
+        rewritten_prompt = ollama.chat(
+            model="qwen3:32b",
+            messages=[
+                {
+                    "role": "system",
+                    "content": f"Conversation History: {chat_text}"
+                },
+                {
+                    "role": "system",
+                    # Limit to 256 words to avoid eating up too much of the context window
+                    "content": "Given this conversation history, rewrite the user's latest "
+                            "question as a fully self-contained query in 256 words or less "
+                            "that could be understood without any prior context."
+                }, 
+                {
+                    "role": "system",
+                    "content": f"User's Latest Question: {user_prompt.content}"
+                }  
+            ]
+        )
+
+        prompt = rewritten_prompt["message"]["content"]
+        
+    else:
+        prompt = user_prompt.content
 
     # After testing, I decided that returning 10 results would produce the best
     # performance
     results = collection.query(
-        query_texts=[rewritten_prompt["message"]["content"]],
+        #query_texts=[user_prompt.content],
+        query_texts=[prompt],
         n_results=10
     )
+
+    print("TITLES:", [m["contract_title"] for m in results["metadatas"][0]])
 
     context = ""
 

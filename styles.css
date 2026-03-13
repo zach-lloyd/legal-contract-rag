@@ -1,0 +1,173 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f0f2f5;
+  color: #1a2332;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.header img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a2332;
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* ===== Chat Window ===== */
+#chat {
+  width: 100%;
+  max-width: 720px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  min-height: 320px;
+  max-height: 520px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  scroll-behavior: smooth;
+}
+
+/* User messages (odd children = user) */
+#chat p:nth-child(odd) {
+  align-self: flex-end;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 0.65rem 1.1rem;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 75%;
+  line-height: 1.55;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+/* Agent messages (even children = agent) */
+#chat p:nth-child(even) {
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: #1a2332;
+  padding: 0.65rem 1.1rem;
+  border-radius: 18px 18px 18px 4px;
+  max-width: 75%;
+  line-height: 1.55;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+/* ===== Thinking Indicator ===== */
+#thinking {
+  width: 100%;
+  max-width: 720px;
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #6b7280;
+  padding-left: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ===== Input Form ===== */
+.form-container {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+#prompt-input {
+  flex: 1;
+  min-height: 54px;
+  max-height: 160px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  background: #ffffff;
+  color: #1a2332;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#prompt-input::placeholder {
+  color: #9ca3af;
+}
+
+#prompt-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+button[type="submit"] {
+  height: 54px;
+  padding: 0 1.5rem;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button[type="submit"]:hover {
+  background: #1d4ed8;
+}
+
+button[type="submit"]:active {
+  background: #1e40af;
+  transform: scale(0.98);
+}
+
+/* ===== Scrollbar (Webkit) ===== */
+#chat::-webkit-scrollbar {
+  width: 6px;
+}
+
+#chat::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chat::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}

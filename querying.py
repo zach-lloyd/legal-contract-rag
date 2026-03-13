@@ -3,7 +3,7 @@ import ollama
 
 client = chromadb.PersistentClient(path="./chroma_data")
 collection = client.get_or_create_collection(name="legal_contracts")
-NUM_RESULTS = 5
+NUM_RESULTS = 10
 
 messages = []
 num_turns = 0

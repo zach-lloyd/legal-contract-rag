@@ -1,5 +1,5 @@
 let SESSION_ID = null;
-const BASE_URL = "http://localhost:8000/chat";
+const BASE_URL = "http://localhost:8000/chat/";
 
 async function getAnswer(params) {
   let url = "";

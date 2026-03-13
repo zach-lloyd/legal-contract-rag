@@ -3,17 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Homepage</title>
+    <title>Legal Contract Assistant</title>
     <script src="handleChat.js" defer></script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="header">
+      <img
+        src="images/rag-agent-logo.png"
+        alt="Image of an open book with a lightbulb in the middle"
+      />
+      <h1>Legal Contract Assistant</h1>
+      <p>Ask questions about your contracts and get instant answers.</p>
+    </div>
     <div id="chat"></div>
     <p hidden id="thinking">Thinking...</p>
-    <textarea
-      type="text"
-      placeholder="Enter your prompt here..."
-      id="prompt-input"
-    ></textarea>
-    <button type="submit" onclick="submitPrompt()">Submit</button>
+    <div class="form-container">
+      <textarea
+        type="text"
+        placeholder="Enter your prompt here..."
+        id="prompt-input"
+      ></textarea>
+      <button type="submit" onclick="submitPrompt()">Submit</button>
+    </div>
   </body>
 </html>

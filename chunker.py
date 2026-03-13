@@ -20,7 +20,7 @@ print(f"Loaded {len(contracts)} contracts")
 splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     encoding_name="cl100k_base",
     chunk_size=256,
-    chunk_overlap=30,
+    chunk_overlap=80,
 )
 
 chunks = []
