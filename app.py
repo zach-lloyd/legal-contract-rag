@@ -8,6 +8,7 @@ import ollama
 # For now, use temporary storage for conversations. Later, I may adjust this
 # approach to use persistent storage
 conversations: dict[str, list[dict]] = {}
+clauses: dict[str, list[str]] = {}
 
 client = chromadb.PersistentClient(path="./chroma_data")
 collection = client.get_or_create_collection(name="legal_contracts")
@@ -34,12 +35,18 @@ class Message(BaseModel):
     content: str
 
 sys_prompt = """
-             You are a helpful legal assistant. Provide a concise but 
-             thorough answer to the user's latest question, using only
-             the existing conversation history (if any) and the relevant clauses 
-             from existing legal contracts provided below. If the answer is not 
-             available. You should be honest about that. Do not hallucinate a 
-             false answer. Rather, you should respond 'I don't have information about that.'
+             You are a helpful legal assistant. Provide a concise but thorough 
+             answer to the user's latest question, using the relevant clauses 
+             from existing legal contracts provided below. The prior history of this
+             conversation, if any, is also provided below. You may use it as additional
+             context when providing your answer, but your answer should be primarily
+             based on the relevant contract clauses that have been provided. If
+             the prior answer references a specific contract, you should bias
+             towards focusing on that contract in referencing the user's current
+             question, unless their question makes it clear that they want you to 
+             refer to other contracts. If the answer is not available. You should 
+             be honest about that. Do not hallucinate a false answer. Rather, you 
+             should respond 'I don't have information about that.'
              """
 
 @app.post("/chat/")
@@ -58,6 +65,7 @@ async def get_answer(user_prompt: Message, session_id: str = None):
     if not session_id or session_id not in conversations:
         session_id = str(uuid4())
         conversations[session_id] = []
+        clauses[session_id] = []
     
     history = conversations[session_id]
 
@@ -77,6 +85,7 @@ async def get_answer(user_prompt: Message, session_id: str = None):
         chat_text = ""
 
         for message in history:
+            chat_text += f"{message['role']}: "
             chat_text += message["content"]
         
         rewritten_prompt = ollama.chat(
@@ -101,29 +110,31 @@ async def get_answer(user_prompt: Message, session_id: str = None):
         )
 
         prompt = rewritten_prompt["message"]["content"]
-        
     else:
         prompt = user_prompt.content
 
     # After testing, I decided that returning 10 results would produce the best
     # performance
     results = collection.query(
-        #query_texts=[user_prompt.content],
         query_texts=[prompt],
         n_results=10
     )
 
-    print("TITLES:", [m["contract_title"] for m in results["metadatas"][0]])
+    chunks = results["documents"][0]
+    metadatas = results["metadatas"][0]
+    clauses_list = clauses[session_id]
 
-    context = ""
+    for meta, chunk in zip(metadatas, chunks):
+       print(meta['contract_title'])
+       title_and_excerpt = f"Contract Title: {meta['contract_title']}\nContract Excerpt: {chunk}\n\n"
 
-    # Currently, the below code joins all titles followed by all chunks. In 
-    # the future, I may revise this so that it is easier to determine which title
-    # is associated with which chunk
-    for i in range(len(results["documents"])):
-        titles = " ".join([metadata["contract_title"] for metadata in results["metadatas"][i]])
-        result = titles + " ".join(results["documents"][i])
-        context += result
+       if title_and_excerpt not in clauses_list:
+           clauses_list.append(title_and_excerpt)
+    
+    if len(clauses_list) > 30:
+        clauses_list[:] = clauses_list[-30:]
+           
+    context = " ".join(clauses_list)
 
     # Add the retrieved clauses to the system prompt
     full_sys_prompt = f"""
