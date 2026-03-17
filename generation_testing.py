@@ -135,20 +135,29 @@ def get_candidate_answers(qas, number_of_results):
             where={"contract_title": qa["title"]}
         )
 
-        context = ""
+        chunks = results["documents"][0]
+        metadatas = results["metadatas"][0]
+        clauses_list = []
 
-        for i in range(len(results["documents"])):
-            titles = " ".join([metadata["contract_title"] for metadata in results["metadatas"][i]])
-            result = titles + " ".join(results["documents"][i])
-            context += result
+        for meta, chunk in zip(metadatas, chunks):
+            title_and_excerpt = f"Contract Title: {meta['contract_title']}\nContract Excerpt: {chunk}\n\n"
+            clauses_list.append(title_and_excerpt)
+
+        context = " ".join(clauses_list)
         
         sys_prompt = """
-             You are a helpful legal assistant. Provide a concise but 
-             thorough answer to the user's latest question, using only
-             the existing conversation history (if any) and the relevant clauses 
-             from existing legal contracts provided below. If the answer is not 
-             available. You should be honest about that. Do not hallucinate a 
-             false answer. Rather, you should respond 'I don't have information about that.'
+             You are a helpful legal assistant. Provide a concise but thorough 
+             answer to the user's latest question, using the relevant clauses 
+             from existing legal contracts provided below. The prior history of this
+             conversation, if any, is also provided below. You may use it as additional
+             context when providing your answer, but your answer should be primarily
+             based on the relevant contract clauses that have been provided. If
+             the prior answer references a specific contract, you should bias
+             towards focusing on that contract in referencing the user's current
+             question, unless their question makes it clear that they want you to 
+             refer to other contracts. If the answer is not available. You should 
+             be honest about that. Do not hallucinate a false answer. Rather, you 
+             should respond 'I don't have information about that.'
              """
         
         full_sys_prompt = f"""
