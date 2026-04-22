@@ -57,10 +57,17 @@ python chunker.py
 ```bash
 uvicorn app:app --reload --port 8000
 ```
- 
+
+### In a separate terminal tab, start the front end
+ ```bash
+python -m http.server 3000
+```
+
 ### Usage
  
-Send a POST request to `/chat/` with a question:
+Navigate to http://localhost:3000/home.html, enter a question into the textbox, and press the submit button. Note that you will need to be able to run Qwen 3:32b on your local machine, and you may need to wait a minute or two for the answer to appear.
+
+Alternatively, you can use the RAG agent in the CLI like so:
  
 ```bash
 # First message (no session ID)
@@ -82,26 +89,18 @@ The CUAD dataset contains question-and-answer pairs for each contract that can b
 
 The query testing pipeline was run 10 times to measure how the accuracy differed when retrieving 1-10 results. The results were as follows:
 
-Conceptual accuracy when receiving 1 results: 0.24302788844621515
-Factual accuracy when receiving 1 results: 0.25872093023255816
-Conceptual accuracy when receiving 2 results: 0.35358565737051795
-Factual accuracy when receiving 2 results: 0.3963178294573643
-Conceptual accuracy when receiving 3 results: 0.4262948207171315
-Factual accuracy when receiving 3 results: 0.48546511627906974
-Conceptual accuracy when receiving 4 results: 0.4721115537848606
-Factual accuracy when receiving 4 results: 0.5445736434108527
-Conceptual accuracy when receiving 5 results: 0.5049800796812749
-Factual accuracy when receiving 5 results: 0.5930232558139535
-Conceptual accuracy when receiving 6 results: 0.5398406374501992
-Factual accuracy when receiving 6 results: 0.6327519379844961
-Conceptual accuracy when receiving 7 results: 0.5637450199203188
-Factual accuracy when receiving 7 results: 0.6618217054263565
-Conceptual accuracy when receiving 8 results: 0.5856573705179283
-Factual accuracy when receiving 8 results: 0.6841085271317829
-Conceptual accuracy when receiving 9 results: 0.6145418326693227
-Factual accuracy when receiving 9 results: 0.7093023255813954
-Conceptual accuracy when receiving 10 results: 0.6324701195219123
-Factual accuracy when receiving 10 results: 0.7257751937984496
+| Num Results | Conceptual Accuracy | Factual Accuracy |
+| :--------: | -------- | -------- |
+| 1 | 0.24302788844621515 | 0.25872093023255816 |
+| 2 | 0.35358565737051795 | 0.3963178294573643 |
+| 3 | 0.4262948207171315 | 0.48546511627906974 |
+| 4 | 0.4721115537848606 | 0.5445736434108527 |
+| 5 | 0.5049800796812749 | 0.5930232558139535 |
+| 6 | 0.5398406374501992 | 0.6327519379844961 |
+| 7 | 0.5637450199203188 | 0.6618217054263565 |
+| 8 | 0.5856573705179283 | 0.6841085271317829 |
+| 9 | 0.6145418326693227 | 0.7093023255813954 |
+| 10 | 0.6324701195219123 | 0.7257751937984496 |
 
 Based on these findings, I decided to set the agent up to retrieve 10 results per query.
 
@@ -110,7 +109,9 @@ Based on these findings, I decided to set the agent up to retrieve 10 results pe
 The agent's generation was also tested using these question-answer pairs. A sample of 51 contracts was selected, and one question from each contract was randomly selected. Each selected question went through the entire pipeline, from query retrieval to answer generation. Then, a separate instance of Qwen 3:32b was used to compare the RAG agent's answer to the reference answer in the CUAD dataset. This instance of Qwen rated the candidate answer on a 1-5 scale based on its correctness and completeness, and provided a one-sentence rationale for each rating. The resulting distribution of scores was as follows:
 
 5 - 44 questions
+
 3 - 6 questions
+
 2 - 1 question
 
 These results suggest that the agent is able to provide accurate answers to a broad range of questions. I will note that I think LLM's can sometimes be overly generous in this context. However, based on the grading model's rationales, it appears to have taken a pretty strict approach. For example, in a couple of instances it gave a candidate answer a score of 3 because, while the answer correctly answered the question, it included additional discussion of the contract that went beyond the scope of the question. This shows that the grading model was thinking critically about the correctness and completeness of the answers, rather than simply giving higher scores to longer answers. All in all, I was encouraged by these generation test results.
